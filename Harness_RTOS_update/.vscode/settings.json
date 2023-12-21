@@ -1,0 +1,23 @@
+{
+    "files.associations": {
+        "RcuConfig.h": "c",
+        "systick.h": "c",
+        "receive_send_config.h": "c",
+        "string.h": "c",
+        "data_process.h": "c",
+        "data_structures.h": "c",
+        "ExtiConfig.h": "c",
+        "node_period_config.h": "c",
+        "pin_master_loop.h": "c",
+        "gpio_config.h": "c",
+        "gd32f4xx.h": "c",
+        "global_config.h": "c",
+        "peripheral_config.h": "c",
+        "sys_config.h": "c",
+        "protocol.h": "c",
+        "stdint.h": "c",
+        "pin_period_config.h": "c",
+        "main.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+}

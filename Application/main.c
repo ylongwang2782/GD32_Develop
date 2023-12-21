@@ -3,7 +3,7 @@
  *
  * File Name: main.c
  * Brief: 
- * ÏßÊø¹¤×°Ç¶ÈëÊ½Èí¼þ
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×°Ç¶ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½
  * 
  * Version: 
  * 2023-12-06 1.0.19 wang.yunlong9@byd.com 
@@ -11,7 +11,7 @@
  * Date             version           Author          Description
  * 
  * 
- * Par:All code is developed by the ¸¥µÏ¿Æ¼¼C´úÂë¹æ·¶2023
+ * Par:All code is developed by the ï¿½ï¿½ï¿½Ï¿Æ¼ï¿½Cï¿½ï¿½ï¿½ï¿½æ·¶2023
  * Warning: 
 *************************************************************************************/
 /*************************************************************************************
@@ -30,7 +30,7 @@
 #include "xl9555.h"
 #include "adc_config.h"
 
-uint8_t I2cReceiver[2]; //´æ·ÅÒý½ÅµçÆ½£¬[0]µÍ8Î»£¬[1]¸ß8Î»
+uint8_t I2cReceiver[2]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Åµï¿½Æ½ï¿½ï¿½[0]ï¿½ï¿½8Î»ï¿½ï¿½[1]ï¿½ï¿½8Î»
 
 /*************************************************************************************
                                              --- Local Function ---
@@ -38,15 +38,15 @@ uint8_t I2cReceiver[2]; //´æ·ÅÒý½ÅµçÆ½£¬[0]µÍ8Î»£¬[1]¸ß8Î»
 
 int main(void) 
 {
-    // ÏµÍ³»ù±¾ÅäÖÃº¯Êý
+    // ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ãºï¿½ï¿½ï¿½
     systick_config();          
     RcuConfig();
     
-    // Êý¾Ý²É¼¯Ïà¹Øº¯ÊýÅäÖÃ
+    // ï¿½ï¿½ï¿½Ý²É¼ï¿½ï¿½ï¿½Øºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     GpioInputModeConfig();
     ExtiConfig();
     
-    // Êý¾Ý´«ÊäÏà¹Øº¯ÊýÅäÖÃ
+    // ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½ï¿½ï¿½Øºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     UsartInitUsart0();
     UsartInitUsart5();
 //    Usart0DmaConfig();
@@ -62,20 +62,20 @@ int main(void)
     TimerInitial();
     NvicConfig();
 
-    /* ÅäÖÃADC */
+    /* ï¿½ï¿½ï¿½ï¿½ADC */
     AdcConfig();
     AdcGpioConifg();
 
-    /* ÉÏµç³õÊ¼»¯¼´Í¨¹ýUSART0´òÓ¡Éè±¸4Î»IDºÅ */
+    /* ï¿½Ïµï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½USART0ï¿½ï¿½Ó¡ï¿½è±¸4Î»IDï¿½ï¿½ */
     PrintUniqueID();
     
-    /* ¿ØÖÆÅäÖÃ¼Ä´æÆ÷ */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¼Ä´ï¿½ï¿½ï¿½ */
     eeprom_buffer_write_interrupt(I2cConfRegisterL, XL9555_config_reg_cmd_L, 1);
     eeprom_buffer_write_interrupt(I2cConfRegisterH, XL9555_config_reg_cmd_H, 1);
 
-    /* ÅäÖÃ¼Ä´æÆ÷ */
+    /* ï¿½ï¿½ï¿½Ã¼Ä´ï¿½ï¿½ï¿½ */
     eeprom_buffer_write_interrupt(I2cFaControlResetBoth, XL9555_config_reg_cmd_H, 1);
-    /* Êä³ö¼Ä´æÆ÷ */
+    /* ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ */
     eeprom_buffer_write_interrupt(I2cFaControlResetBoth, XL9555_output_reg_cmd_H, 1);
 
     while(1)
