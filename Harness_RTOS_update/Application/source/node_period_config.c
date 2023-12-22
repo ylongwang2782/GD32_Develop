@@ -116,15 +116,15 @@ void NodeDataUpload(void)
 *************************************************************************************/
 void DeviceStatusRead(void)
 {
-    /* 控制所有寄存器为输入模式 */
-    eeprom_buffer_write_interrupt(I2cConfRegisterL, XL9555_config_reg_cmd_L, 1);
-    eeprom_buffer_write_interrupt(I2cConfRegisterH, XL9555_config_reg_cmd_H, 1);
-    
-    eeprom_buffer_read_interrupt(i2c_buffer_read, XL9555_input_reg_cmd_L, 2);
-    stDataUploadFrame.deviceStatus.statusProbe1 = stDataUploadFrameZ.deviceStatus.statusProbe1= BitGet(i2c_buffer_read[1], 0);
-    stDataUploadFrame.deviceStatus.statusProbe2 = stDataUploadFrameZ.deviceStatus.statusProbe2 = BitGet(i2c_buffer_read[1], 1);
-    stDataUploadFrame.deviceStatus.statusPress = stDataUploadFrameZ.deviceStatus.statusPress= BitGet(i2c_buffer_read[1], 2);
-    stDataUploadFrame.deviceStatus.statusColor = stDataUploadFrameZ.deviceStatus.statusColor = BitGet(i2c_buffer_read[1], 3);
+//    /* 控制所有寄存器为输入模式 */
+//    eeprom_buffer_write_interrupt(I2cConfRegisterL, XL9555_config_reg_cmd_L, 1);
+//    eeprom_buffer_write_interrupt(I2cConfRegisterH, XL9555_config_reg_cmd_H, 1);
+//    
+//    eeprom_buffer_read_interrupt(i2c_buffer_read, XL9555_input_reg_cmd_L, 2);
+//    stDataUploadFrame.deviceStatus.statusProbe1 = stDataUploadFrameZ.deviceStatus.statusProbe1= BitGet(i2c_buffer_read[1], 0);
+//    stDataUploadFrame.deviceStatus.statusProbe2 = stDataUploadFrameZ.deviceStatus.statusProbe2 = BitGet(i2c_buffer_read[1], 1);
+//    stDataUploadFrame.deviceStatus.statusPress = stDataUploadFrameZ.deviceStatus.statusPress= BitGet(i2c_buffer_read[1], 2);
+//    stDataUploadFrame.deviceStatus.statusColor = stDataUploadFrameZ.deviceStatus.statusColor = BitGet(i2c_buffer_read[1], 3);
 }
 
 

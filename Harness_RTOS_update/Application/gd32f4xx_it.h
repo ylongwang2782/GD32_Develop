@@ -57,4 +57,6 @@ void DebugMon_Handler(void);
 void EXTI0_IRQHandler(void);
 void TIMER1_IRQHandler(void);
 void USART5_IRQHandler(void);
+void I2C2_EV_IRQHandler(void);
+void I2C2_ER_IRQHandler(void);
 #endif /* GD32F4XX_IT_H */

@@ -40,10 +40,49 @@ OF SUCH DAMAGE.
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+
+#include "main.h"
+#include "receive_send_config.h"
+#include "sys_config.h"
 #include "protocol.h"
+#include "string.h"
+#include "node_period_config.h"
+#include "pin_period_config.h"
+#include "peripheral_config.h"
+#include "Protocol.h"
+#include "adc_config.h"
+#include "xl9555.h"
+#include "i2c.h"
+
 
 extern SemaphoreHandle_t binary_semaphore;
 extern SemaphoreHandle_t timer_semaphore;
+
+/*************************************************************************************
+ * Function Name: I2C2_EV_IRQHandler
+ * Description: i2c 事件中断函数
+ * param[in]: 
+ * param[in]: 
+ * Retrun: 
+ * Exception: none
+*************************************************************************************/
+void I2C2_EV_IRQHandler(void)
+{
+    i2cx_event_irq_handler();
+}
+
+/*************************************************************************************
+ * Function Name: I2C2_ER_IRQHandler
+ * Description: i2c 错误中断函数
+ * param[in]: 
+ * param[in]: 
+ * Retrun: 
+ * Exception: none
+*************************************************************************************/
+void I2C2_ER_IRQHandler(void)
+{
+    i2cx_error_irq_handler();
+}
 
 void TIMER1_IRQHandler(void)
 { 

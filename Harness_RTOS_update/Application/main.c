@@ -15,6 +15,8 @@
 #include "peripheral_config.h"
 #include "Protocol.h"
 #include "adc_config.h"
+#include "xl9555.h"
+#include "i2c.h"
 
 #define INIT_TASK_PRIO   ( tskIDLE_PRIORITY + 1 )
 #define LED_TASK_PRIO    ( tskIDLE_PRIORITY + 2 )
@@ -56,19 +58,39 @@ void init_task(void * pvParameters)
     rcu_periph_clock_enable(RCU_GPIOA);
     rcu_periph_clock_enable(RCU_GPIOB);
     rcu_periph_clock_enable(RCU_GPIOC);
+    rcu_periph_clock_enable(RCU_GPIOD);
+    rcu_periph_clock_enable(RCU_GPIOE);
 
     ExtiConfig();
     UsartInitUsart5();
     TimerInitial();
+    
+    /* configure GPIO */
+    i2c_gpio_config();
+    /* configure I2C */
+    i2c_config();
+    /* initialize EEPROM */
+    i2c_eeprom_init();
     
     /* create a binary semaphore. */
     binary_semaphore = xSemaphoreCreateBinary();
     timer_semaphore = xSemaphoreCreateBinary();
 
     PrintUniqueID();
+    
+    /* ¿ØÖÆÅäÖÃ¼Ä´æÆ÷ */
+    eeprom_buffer_write_interrupt(I2cConfRegisterL, XL9555_config_reg_cmd_L, 1);
+    eeprom_buffer_write_interrupt(I2cConfRegisterH, XL9555_config_reg_cmd_H, 1);
+
+    /* ÅäÖÃ¼Ä´æÆ÷ */
+    eeprom_buffer_write_interrupt(I2cFaControlResetBoth, XL9555_config_reg_cmd_H, 1);
+    /* Êä³ö¼Ä´æÆ÷ */
+    eeprom_buffer_write_interrupt(I2cFaControlResetBoth, XL9555_output_reg_cmd_H, 1);
+    
     /* start toogle LED task every 250ms */
     xTaskCreate(Usart2_task, "Usart2", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
     xTaskCreate(Timer_task, "Timer", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, &TIMER_Task_Handle);
+
     for( ;; )
     {
         vTaskDelete(NULL);
@@ -199,4 +221,12 @@ void Timer_task(void * pvParameters)
             vTaskDelay(10 / portTICK_RATE_MS);      
         }
     }
+}
+
+/* retarget the C library printf function to the usart */
+int fputc(int ch, FILE *f)
+{
+    usart_data_transmit(USART5, (uint8_t) ch);
+    while(RESET == usart_flag_get(USART5, USART_FLAG_TBE));
+    return ch;
 }

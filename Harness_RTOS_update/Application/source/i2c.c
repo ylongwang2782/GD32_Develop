@@ -12,6 +12,7 @@
  * Par:
  * Warning: 
 *************************************************************************************/
+
 #include "gd32f4xx.h"
 #include "i2c.h"
 #include <stdio.h>
@@ -63,6 +64,9 @@ void i2c_config(void)
     i2c_enable(I2CX);
     /* enable acknowledge */
     i2c_ack_config(I2CX, I2C_ACK_ENABLE);
+    
+    nvic_irq_enable(I2C2_EV_IRQn, 2U, 4U);
+    nvic_irq_enable(I2C2_ER_IRQn, 2U, 3U);
 }
 
 /*!
