@@ -31,6 +31,7 @@
 #define SlotBufferLen 16
 #define AdcChannelNum 6
 #define PACKLEN 8
+#define CheckSumLength 1
 
 /*************************************************************************************
                                                --- Global Variable ---

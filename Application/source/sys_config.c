@@ -31,17 +31,22 @@
                                              --- Local Function ---
 *************************************************************************************/
 
-void SystemGpioConfig(void)
+void StatusLed(void)
 {
-    /* config the battery LED */
-    gpio_mode_set(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_PIN_3);  // Configure the GPIO pin as an output, no pull-up or pull-down.  
+    gpio_mode_set(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_PIN_1); 
+    gpio_mode_set(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_PIN_2);  
+    gpio_mode_set(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_PIN_3);  
+    gpio_output_options_set(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_1);    // Set the GPIO output options to push-pull and medium speed (50MHz).
+    gpio_output_options_set(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_2);    // Set the GPIO output options to push-pull and medium speed (50MHz).
     gpio_output_options_set(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_3);    // Set the GPIO output options to push-pull and medium speed (50MHz).
-    gpio_bit_reset(GPIOC, GPIO_PIN_3); // Set the GPIO pin to a high level (master state).
+    gpio_bit_set(GPIOC, GPIO_PIN_1); // Set the GPIO pin to a high level (master state).
+    gpio_bit_set(GPIOC, GPIO_PIN_2); // Set the GPIO pin to a high level (master state).
+    gpio_bit_set(GPIOC, GPIO_PIN_3); // Set the GPIO pin to a high level (master state).
 }
 
 /*************************************************************************************
  * Function Name: PrintUniqueID
- * Description: 通过串口0打印芯片4位ID号
+ * Description: 打印芯片4位ID号
  * Param[out]: unique ID with 4 8bit variable.
  * Retrun: none
  * Exception: none
@@ -49,30 +54,18 @@ void SystemGpioConfig(void)
 void PrintUniqueID(void)
 {
     int i;
-    ReadUniqueID(&stDevice.ID[0], &stDevice.ID[1], &stDevice.ID[2], &stDevice.ID[3]);
-    for(i = 0; i <4 ; i++)
-    {
-        usart_data_transmit(USART0, stDevice.ID[i]);
-        while(RESET == usart_flag_get(USART0, USART_FLAG_TBE));
-    }
-}
-
-/*************************************************************************************
- * Function Name: ReadUniqueID
- * Description: read the unique ID from MCU register.
- * Param[out]: unique ID with 4 8bit variable.
- * Retrun: none
- * Exception: none
-*************************************************************************************/
-void ReadUniqueID(uint8_t *byte1, uint8_t *byte2, uint8_t *byte3, uint8_t *byte4) 
-{
     // 从地址0x1FFF7A10读取设备ID
     uint32_t *device_PID = (uint32_t *)(0x1FFF7A10);
     // 将读取到的唯一ID号分别存入四个字节中
-    *byte1 = (uint8_t)(*device_PID >> 24); // Extract the most significant byte (byte1).
-    *byte2 = (uint8_t)((*device_PID >> 16) & 0xFF); // Extract the next byte (byte2).
-    *byte3 = (uint8_t)((*device_PID >> 8) & 0xFF); // Extract the next byte (byte3).
-    *byte4 = (uint8_t)(*device_PID & 0xFF); // Extract the least significant byte (byte4).
+    stDevice.ID[0] = (uint8_t)(*device_PID >> 24); // Extract the most significant byte (byte1).
+    stDevice.ID[1] = (uint8_t)((*device_PID >> 16) & 0xFF); // Extract the next byte (byte2).
+    stDevice.ID[2] = (uint8_t)((*device_PID >> 8) & 0xFF); // Extract the next byte (byte3).
+    stDevice.ID[3] = (uint8_t)(*device_PID & 0xFF); // Extract the least significant byte (byte4).
+    for(i = 0; i <4 ; i++)
+    {
+        usart_data_transmit(USART5, stDevice.ID[i]);
+        while(RESET == usart_flag_get(USART5, USART_FLAG_TBE));
+    }
 }
 
 /*************************************************************************************
@@ -139,9 +132,7 @@ void RcuConfig(void)
 void NvicConfig(void)
 {
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
-
     nvic_irq_enable(I2C2_EV_IRQn, 0U, 1U);
     nvic_irq_enable(I2C2_ER_IRQn, 0U, 0U);
-
     nvic_irq_enable(TIMER1_IRQn, 1U, 1U);
 }

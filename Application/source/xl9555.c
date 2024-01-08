@@ -26,6 +26,9 @@
 uint16_t eeprom_address;
 uint8_t i2c_buffer_write[BUFFER_SIZE];
 uint8_t i2c_buffer_read[BUFFER_SIZE];
+uint8_t i2c_LoRa_channel_config[BUFFER_SIZE];
+
+
 volatile uint8_t  *i2c_write;
 volatile uint8_t  *i2c_read;
 volatile uint16_t i2c_nbytes;
@@ -33,14 +36,14 @@ volatile uint16_t i2c_write_dress;
 volatile uint16_t i2c_read_dress;
 volatile uint8_t  i2c_process_flag = 0;
 
-uint8_t I2cConfRegisterL[1] = {0xFF};
-uint8_t I2cConfRegisterH[1] = {0x0F};
+uint8_t I2cConfRegisterL[1] = {0xFF};/* I2c配置控制器低位字节 */
+uint8_t I2cConfRegisterH[1] = {0x0F};/* I2c配置控制器高位字节 */
 
 uint8_t I2cKeyBuffer[1];
-uint8_t I2cFaControlSet1[1] = {0x2F};
-uint8_t I2cFaControlSet2[1] = {0x1F};
-uint8_t I2cFaControlSetBoth[1] = {0x3F};
-uint8_t I2cFaControlResetBoth[1] = {0x0F};
+uint8_t I2cFaControlSet1[1] = {0x2F};/* 置高电磁阀1 */
+uint8_t I2cFaControlSet2[1] = {0x1F};/* 置高电磁阀2 */
+uint8_t I2cFaControlSetBoth[1] = {0x3F};/* 置高电磁阀1和2 */
+uint8_t I2cFaControlResetBoth[1] = {0x0F};/* 复位电磁阀1和2 */
 
 bool DeviceStatusReadFlag;
 bool key1Closed;

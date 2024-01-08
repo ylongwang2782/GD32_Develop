@@ -25,6 +25,22 @@
 /*************************************************************************************
                                                 --- Public Function ---
 *************************************************************************************/
+/* 定时器中断服务函数 */
+void TIMER1_IRQHandler(void);
+/* 串口五中断服务函数 */
+void USART5_IRQHandler(void);
+/* 外部中断服务函数 */
+void EXTI0_IRQHandler(void);
+void EXTI1_IRQHandler(void);
+void EXTI2_IRQHandler(void);
+void EXTI3_IRQHandler(void);
+void EXTI4_IRQHandler(void);
+void EXTI5_9_IRQHandler(void);
+void EXTI10_15_IRQHandler(void) ;
+/* I2C0 event handle function */
+void I2C0_EV_IRQHandler(void);
+/* I2C0 error handle function */
+void I2C0_ER_IRQHandler(void);
 /* this function handles NMI exception */
 void NMI_Handler(void);
 /* this function handles HardFault exception */
@@ -43,23 +59,5 @@ void DebugMon_Handler(void);
 void PendSV_Handler(void);
 /* this function handles SysTick exception */
 void SysTick_Handler(void);
-
-/* 定时器中断服务函数 */
-void TIMER1_IRQHandler(void);
-/* 串口五中断服务函数 */
-void USART5_IRQHandler(void);
-/* 外部中断服务函数 */
-void EXTI0_IRQHandler(void);
-void EXTI1_IRQHandler(void);
-void EXTI2_IRQHandler(void);
-void EXTI3_IRQHandler(void);
-void EXTI4_IRQHandler(void);
-void EXTI5_9_IRQHandler(void);
-void EXTI10_15_IRQHandler(void) ;
-/* I2C0 event handle function */
-void I2C0_EV_IRQHandler(void);
-/* I2C0 error handle function */
-void I2C0_ER_IRQHandler(void);
-
 
 #endif /* GD32F4XX_IT_H */

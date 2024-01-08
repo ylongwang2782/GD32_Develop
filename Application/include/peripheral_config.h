@@ -17,11 +17,14 @@
 *************************************************************************************/
 #ifndef PERIPHERAL_CONFIG_H
 #define PERIPHERAL_CONFIG_H
-
 /*************************************************************************************
                                              --- Header Files ---
 *************************************************************************************/
 #include "gd32f4xx.h"
+
+#define ExtiPortBnum 12
+#define ExtiPortCnum 16
+#define ExtiPortDnum 16
 
 #define CONFIG_EXTI_B_LINE(line) \
 	nvic_irq_enable(EXTI##line##_IRQn, 0U, 3U); \

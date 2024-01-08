@@ -25,19 +25,14 @@
 #include "peripheral_config.h"
 #include "Protocol.h"
 #include "adc_config.h"
-
 /*************************************************************************************
                                     --- Local Constant & Type Defined ---
 *************************************************************************************/
 uint16_t UnsteadyAdcValueBuff[10][10];
 uint32_t AdcChannelArray[6] = {ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2, ADC_CHANNEL_3, ADC_CHANNEL_4, ADC_CHANNEL_5};
-uint16_t DeviceVoltage = 33;
-uint16_t Resolution = 4095;
-uint16_t buffer[16];
 /*************************************************************************************
                                              --- Local Function ---
 *************************************************************************************/
-
 /*************************************************************************************
  * Function Name: PinDataCollectL
  * Description: 通断数据采集函数，首先存储上一周期数据，然后采集本周期数据，保证单位时间内的数据完整
@@ -65,21 +60,19 @@ void PinDataCollect(void)
                                     CurrentLineVolum * (LastPeriodCounter - (g_i16PinNumBefore + CurrentLineVolum )) ;
 
     // 将上一个周期的引脚恢复为外部中断输入模式
-    if (CurrentLineVolum >= (g_i16Period_counter - g_i16PinNumBefore) && (g_i16Period_counter - g_i16PinNumBefore) > 0)
+    if (CurrentLineVolum >= (CurrentPinNum) && (CurrentPinNum) > 0)
     {
         if(LastPinNum>= 0)
         { 
             ExtiReconfig(LastPinNum);
         }
     }
-    
-    // 如果处于当前时隙，删除上一周期对角线元素
+
+    // 如果处于当前时隙，删除上一周期对角线上的元素
     if (CurrentLineVolum > LastPinNum && LastPinNum >= 0)
     {
         RemoveElementAtIndex(g_u8SlotBinDataBuffer, LastPinNum);
     }
-    
-    // store the current slot data buffer into the node data buffer
     /* 将上一周期采集到的时隙二进制数据存入节点二进制数据缓存，采用分段函数存储 */
     if(LastPeriodCounter >= 0)
     {
@@ -100,44 +93,40 @@ void PinDataCollect(void)
         }        
     }
     
-    // clear the g_u8SlotBinDataBuffer for the next data collection.
     // 重新初始化时隙二进制数据缓存
     ResetArray(g_u8SlotBinDataBuffer,16);
-
     // 等待数据存储完毕再进行引脚中断设置（针对节点时隙交叉问题）
     for(i = 0; i <500; i++);
-    
-    // Check if the L_LineVolum is within a specific range and adjust GPIO pins accordingly.
     // 如果处于当前时隙，则触发引脚配置
-    if (CurrentLineVolum > (g_i16Period_counter - g_i16PinNumBefore) && (g_i16Period_counter - g_i16PinNumBefore) >= 0)
+    if (CurrentLineVolum > (CurrentPinNum) && (CurrentPinNum) >= 0)
     {
-        PinSet(GPIOB, BPINS[g_i16Period_counter - g_i16PinNumBefore]);
+        PinSet(GPIOB, BPINS[CurrentPinNum]);
     }
 }
 
 /*************************************************************************************
  * Function Name: PinDataCollectZ
- * Description: 阻抗数据采集函数，采用轮询检测，检测本周期数据，然后将本周期数据存储
+ * Description: 阻抗数据采集函数，采用轮询检测，检测本周期数据，然后存储本周期数据
  * Param[in|out]: none
  * Retrun: none
  * Exception: 
 *************************************************************************************/
 void PinDataCollectZ(void)
 {
-    /* 当处于激活状态时才触发 */
+    /* 当需要阻抗检测时才触发 */
     if (stBroadcastFrame.synchData.synchSlot[g_i16PeriodOrder].Z_LineVolum > g_i16PeriodOrder >= 0)
     {
         int i, j;
-        uint8_t FilterNum = 3;
+        uint8_t FilterNum = 3;/* 均值滤波次数 */
         uint8_t TimeStamp = g_i16Period_counter;
-        int CurrentPinNumZ = TimeStamp - g_i16PinNumBeforeZ;
-        int SlotLineVolumZ = stBroadcastFrame.synchData.synchSlot[g_i16PeriodOrder].Z_LineVolum;
+        int CurrentPinNumZ = TimeStamp - g_i16PinNumBeforeZ;/* 当前阻抗引脚数量 */
+        int SlotLineVolumZ = stBroadcastFrame.synchData.synchSlot[g_i16PeriodOrder].Z_LineVolum;/* 本设备阻抗引脚检测数量 */
         
-        /* 数据存储分段函数自变量分段点 */
+        /* 数据存储分段函数-自变量分段点 */
         int BufferPiecewisePoint0 = g_i16PinNumBeforeZ;
         int BufferPiecewisePoint1 = g_i16PinNumBeforeZ + SlotLineVolumZ;
-        int BufferPiecewisePoint2 = stBroadcastFrame.synchData.totalLineVolum.Z_TotalLineVolum;
-        /* 数据存储分段函数因变量分段点 */
+        int BufferPiecewisePoint2 = stBroadcastFrame.synchData.totalLineVolum.Z_TotalLineVolum;/* 总阻抗检测引脚数量 */
+        /* 数据存储分段函数-因变量分段点 */
         int BufferIndexBefore = SlotLineVolumZ * TimeStamp;
         int BufferIndexDuring = SlotLineVolumZ * g_i16PinNumBeforeZ + (SlotLineVolumZ - 1) * CurrentPinNumZ;
         int BufferIndexAfter = SlotLineVolumZ * g_i16PinNumBeforeZ + 
@@ -174,7 +163,7 @@ void PinDataCollectZ(void)
             RemoveElementAtIndex(g_u8SlotResDataBuffer, CurrentPinNumZ);
         }
 
-        /* 数据采集 */
+        /* 阻抗数据采集 */
         // 时隙前
         if (BufferPiecewisePoint0 > TimeStamp)
         {
@@ -201,8 +190,7 @@ void PinDataCollectZ(void)
 
 /*************************************************************************************
  * Function Name: RemoveElementAtIndex
- * Description: 
- * 消除数组中指定元素，并将制定元素后面元素向前移动，本函数不改变数组大小
+ * Description: 消除数组中指定元素，并将制定元素后面元素向前移动，本函数不改变数组大小
  * Param[in|out]: none
  * Retrun: none
  * Exception: 
@@ -221,7 +209,7 @@ void RemoveElementAtIndex(uint8_t arr[], uint8_t index) {
 
 /*************************************************************************************
  * Function Name: ResetArray
- * Description: 将指定的数组中的元素全部归零
+ * Description: 将指定数组的全部元素归零
  * Param[in|out]: none
  * Retrun: none
  * Exception: 
@@ -237,7 +225,7 @@ void ResetArray(uint8_t arr[], int size)
 
 /*************************************************************************************
  * Function Name: PinSet
- * Description: 配置引脚为主模式，高电平输出模式，用于通断检测
+ * Description: 配置引脚为高电平输出模式，用于通断检测
  * Param[in]: GPIOx(x = A,B,C,D,E,F,G,H,I)
  * Param[in]: x(x=0..15)
  * Retrun: none

@@ -164,3 +164,19 @@ void UsartInitUsart5(void)
     usart_interrupt_enable(USART5, USART_INT_RBNE); // Enable the USART interrupt
     nvic_irq_enable(USART5_IRQn, 0U, 4U);           // Set for the usart intterupt priority
 }
+
+/*************************************************************************************
+ * Function Name: fputc
+ * Description: retarget the printf
+ * Param[in|out]: 
+ * Retrun: 
+ * Exception: 
+*************************************************************************************/
+int fputc(int ch, FILE *f)
+{
+    usart_data_transmit(USART5, (uint8_t)ch);
+    while(RESET == usart_flag_get(USART5, USART_FLAG_TBE))
+    {
+    }
+    return ch;
+}

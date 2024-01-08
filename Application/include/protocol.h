@@ -28,6 +28,9 @@
 *************************************************************************************/
 #define MAX_NODES 5
 #define MAX_FRAME 255U
+#define UPLOADCOUNT 5
+
+extern uint8_t Running_holder;
 
 /*************************************************************************************
                                            --- Data Structure ---
@@ -134,9 +137,6 @@ typedef struct
 	uint8_t checksum;
 } CommandFrame;
 
-
-
-
 /*************************************************************************************
                                                --- Global Variable ---
 *************************************************************************************/
@@ -155,9 +155,8 @@ extern uint8_t NetReplyBuff[];
 *************************************************************************************/
 uint8_t WirelessDataPacket(uint8_t const *addr,uint8_t num,uint8_t *output,uint8_t type,uint8_t slot);
 uint8_t CheckOut(uint8_t const *addr,uint8_t num);
-void BatDataUpload(uint16_t data);
 uint8_t BitGet(uint8_t source, int sourceBitPosition);
-
+void BatDataUpload(uint16_t data);
 #pragma pack()
 #endif
 

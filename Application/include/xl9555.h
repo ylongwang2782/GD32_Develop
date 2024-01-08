@@ -40,6 +40,7 @@ typedef enum {
 
 extern uint8_t i2c_buffer_write[];
 extern uint8_t i2c_buffer_read[];
+extern uint8_t i2c_LoRa_channel_config[];
 
 extern uint8_t I2cConfRegisterL[];
 extern uint8_t I2cConfRegisterH[];

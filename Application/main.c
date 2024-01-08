@@ -3,7 +3,7 @@
  *
  * File Name: main.c
  * Brief: 
- * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×°Ç¶ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½
+ * ÏßÊø¹¤×°Ç¶ÈëÊ½Èí¼þ
  * 
  * Version: 
  * 2023-12-06 1.0.19 wang.yunlong9@byd.com 
@@ -11,7 +11,7 @@
  * Date             version           Author          Description
  * 
  * 
- * Par:All code is developed by the ï¿½ï¿½ï¿½Ï¿Æ¼ï¿½Cï¿½ï¿½ï¿½ï¿½æ·¶2023
+ * Par:All code is developed by the ¸¥µÏ¿Æ¼¼C´úÂë¹æ·¶2023
  * Warning: 
 *************************************************************************************/
 /*************************************************************************************
@@ -29,58 +29,44 @@
 #include "i2c.h"
 #include "xl9555.h"
 #include "adc_config.h"
-
-uint8_t I2cReceiver[2]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Åµï¿½Æ½ï¿½ï¿½[0]ï¿½ï¿½8Î»ï¿½ï¿½[1]ï¿½ï¿½8Î»
-
 /*************************************************************************************
                                              --- Local Function ---
 *************************************************************************************/
 
 int main(void) 
 {
-    // ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ãºï¿½ï¿½ï¿½
     systick_config();          
-    RcuConfig();
+    RcuConfig();/* RCUÊ±ÖÓÅäÖÃ */    
+    NvicConfig();/* ÖÐ¶ÏÓÅÏÈ¼¶³õÊ¼»¯ */
+    GpioInputModeConfig();/* Í¨¶ÏÒý½ÅÄ£Ê½ÅäÖÃ */
+    ExtiConfig();/* Íâ²¿ÖÐ¶ÏÅäÖÃ */    
+    UsartInitUsart0();/* ´®¿Ú0³õÊ¼»¯ */
+    UsartInitUsart5();/* ´®¿Ú5³õÊ¼»¯ */
+    i2c_gpio_config();/* configure GPIO */
+    i2c_config();/* configure I2C */
+    i2c_eeprom_init();/* initialize EEPROM */
     
-    // ï¿½ï¿½ï¿½Ý²É¼ï¿½ï¿½ï¿½Øºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-    GpioInputModeConfig();
-    ExtiConfig();
-    
-    // ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½ï¿½ï¿½Øºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-    UsartInitUsart0();
-    UsartInitUsart5();
-//    Usart0DmaConfig();
-//    Usart5DmaConfig();
-
-    /* configure GPIO */
-    i2c_gpio_config();
-    /* configure I2C */
-    i2c_config();
-    /* initialize EEPROM */
-    i2c_eeprom_init();
-
-    TimerInitial();
-    NvicConfig();
-
-    /* ï¿½ï¿½ï¿½ï¿½ADC */
-    AdcConfig();
-    AdcGpioConifg();
-
-    /* ï¿½Ïµï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½USART0ï¿½ï¿½Ó¡ï¿½è±¸4Î»IDï¿½ï¿½ */
-    PrintUniqueID();
-    
-    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¼Ä´ï¿½ï¿½ï¿½ */
     eeprom_buffer_write_interrupt(I2cConfRegisterL, XL9555_config_reg_cmd_L, 1);
     eeprom_buffer_write_interrupt(I2cConfRegisterH, XL9555_config_reg_cmd_H, 1);
+//    eeprom_buffer_write_interrupt(I2cFaControlResetBoth, XL9555_config_reg_cmd_H, 1);/* I2CÅäÖÃ¼Ä´æÆ÷ */
+//    eeprom_buffer_write_interrupt(I2cFaControlResetBoth, XL9555_output_reg_cmd_H, 1);/* I2CÊä³ö¼Ä´æÆ÷ */
+    eeprom_buffer_read_interrupt(i2c_LoRa_channel_config, XL9555_input_reg_cmd_L, 1);/* ¶ÁÈ¡²¦Âë¿ª¹ØÊýÖµ */
+    printf("AT+MODE=0\r\n");/* ½øÈëÅäÖÃÄ£Ê½ */
+    delay_1ms(10);
+    printf("AT+RFCH=%d\r\n",255 - i2c_LoRa_channel_config[0]);/* ÅäÖÃÐÅµÀ */
+    delay_1ms(10);
+    printf("AT+MODE=1\r\n");/* ÍË³öÅäÖÃÄ£Ê½ */
+    delay_1ms(10);
 
-    /* ï¿½ï¿½ï¿½Ã¼Ä´ï¿½ï¿½ï¿½ */
-    eeprom_buffer_write_interrupt(I2cFaControlResetBoth, XL9555_config_reg_cmd_H, 1);
-    /* ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ */
-    eeprom_buffer_write_interrupt(I2cFaControlResetBoth, XL9555_output_reg_cmd_H, 1);
+    TimerInitial();/* ¶¨Ê±Æ÷³õÊ¼»¯ */
+    AdcConfig();/* ÅäÖÃADC */
+    AdcGpioConifg();/* ADCÒý½ÅÅäÖÃ */
+    StatusLed(); /* ×´Ì¬µÆ³õÊ¼»¯ */
+    PrintUniqueID();/* ÉÏµç³õÊ¼»¯¼´Í¨¹ýUSART0´òÓ¡Éè±¸4Î»IDºÅ */
 
     while(1)
     {
-        BatVolMonitor();
+        // BatVolMonitor();
         PinDataCollectZ();
         I2cTask();
     }

@@ -12,7 +12,6 @@
  * Par:
  * Warning: 
 *************************************************************************************/
-
 /*************************************************************************************
                                              --- Header Files ---
 *************************************************************************************/
@@ -25,15 +24,17 @@
                                     --- Local Constant & Type Defined ---
 *************************************************************************************/
 BroadcastFrame stBroadcastFrame;	/* Define the broadcast frame using the BroadcastFrame structure */
-DataFrameHead stDataFrameHead;	/* Define the stDataSendFrame using the DataSendFrame structure */
 DataUploadFrame stDataUploadFrame;
 DataUploadFrameZ stDataUploadFrameZ;
 CommandFrame stCommandFrame;
+
 static uint8_t s_u8Ser=0u;															//静态全局变量,只在本文件中生效
 const uint8_t s_byDataHead[]={0xA5,0xFF,0xCC};
-uint8_t UnlockCommand;
-uint8_t NetReplyFlag = 0;
-uint8_t NetReplyBuff[64];
+
+uint8_t UnlockCommand;/* 解锁指令 */
+uint8_t NetReplyFlag = 1;/* 入网回复标志位 */
+uint8_t NetReplyBuff[64];/* 入网回复缓存 */
+uint8_t Running_holder = 5;/* 运行保持器 */
 
 /*************************************************************************************
                                              --- Local Function ---
@@ -59,7 +60,7 @@ uint8_t CheckOut(uint8_t const *addr,uint8_t num)
 
 /*************************************************************************************
  * Function Name: WirelessDataPacket
- * Description: Pack the structure into the a bity array.
+ * Description: 无线上传数据打包函数
  * *addr[in]: The address of the structure
  * num[in]: the length of the structure
  * *output[out]: output byte array 
@@ -85,7 +86,7 @@ uint8_t WirelessDataPacket(uint8_t const *addr,uint8_t num,uint8_t *output,uint8
 		pDataPack->Length=num+sizeof(DataFrameHead);																//统计不包括校验的数据包长度
 		memcpy(pDataPack->Data,addr,num);																							//数据复制
 		pDataPack->Head[pDataPack->Length - 1]=CheckOut(pDataPack->Head,pDataPack->Length);				//计算校验,帧头至数据域结束
-//		pDataPack->Length;																												 	//将校验字节核算到总长度中去
+//		pDataPack->Length;																									 	//将校验字节核算到总长度中去
 		return 1;
 	}
 }

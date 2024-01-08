@@ -28,13 +28,9 @@
 #include "Protocol.h"
 #include "systick.h"
 #include "xl9555.h"
-
-#define CheckSumLength 1
-
 /*************************************************************************************
                                     --- Local Constant & Type Defined ---
 *************************************************************************************/
-
 
 /*************************************************************************************
                                              --- Local Function ---
@@ -80,7 +76,7 @@ void NodeDataUpload(void)
         /* 根据正确的数组长度，将二进制数据缓存转换为十六进制数据缓存 */
         MultipleBinaryArrayToHex(g_u8NodeBinDataBuffer, MaxBufferLen, stDataUploadFrame.Data);
         /* 发送通断数据帧 */
-        WirelessDataPacket((uint8_t const *)&stDataUploadFrame, ValidDataFrameLength , u8DmaSendBuffer, 2, g_i16PeriodOrder + 1);
+        WirelessDataPacket((uint8_t const *)&stDataUploadFrame, ValidDataFrameLength , u8DmaSendBuffer, 2, g_i16PeriodOrder + 2);
         for(i = 0; i <(sizeof(DataFrameHead) + ValidDataFrameLength); i++)
         {
             usart_data_transmit(USART5, u8DmaSendBuffer[i]);
@@ -89,7 +85,7 @@ void NodeDataUpload(void)
         if (slotZLineVolum > 0)
         {
             /* 发送阻抗数据帧 */
-            WirelessDataPacket((uint8_t const *)&stDataUploadFrameZ, ValidDataFrameLengthZ, u8DmaSendBufferZ, 3, g_i16PeriodOrder + 1);
+            WirelessDataPacket((uint8_t const *)&stDataUploadFrameZ, ValidDataFrameLengthZ, u8DmaSendBufferZ, 3, g_i16PeriodOrder + 2);
             for(i = 0; i <(sizeof(DataFrameHead) + ValidDataFrameLengthZ); i++)
             {
                 usart_data_transmit(USART5, u8DmaSendBufferZ[i]);
@@ -97,10 +93,9 @@ void NodeDataUpload(void)
             }
         }
     }
-
     if (UnlockCommand == 1)
     {
-        
+        /* 执行开锁动作 */
     }
     
 }
@@ -116,20 +111,19 @@ void NodeDataUpload(void)
 void DeviceStatusRead(void)
 {
     /* 控制所有寄存器为输入模式 */
-    eeprom_buffer_write_interrupt(I2cConfRegisterL, XL9555_config_reg_cmd_L, 1);
+    eeprom_buffer_write_interrupt(I2cConfRegisterL, XL9555_config_reg_cmd_L, 1);/* 向配置寄存器中写入控制字 */
     eeprom_buffer_write_interrupt(I2cConfRegisterH, XL9555_config_reg_cmd_H, 1);
     
-    eeprom_buffer_read_interrupt(i2c_buffer_read, XL9555_input_reg_cmd_L, 2);
-    stDataUploadFrame.deviceStatus.statusProbe1 = stDataUploadFrameZ.deviceStatus.statusProbe1= BitGet(i2c_buffer_read[1], 0);
+    eeprom_buffer_read_interrupt(i2c_buffer_read, XL9555_input_reg_cmd_L, 2);/* 从输入寄存器中读取状态字，其中字0是拨码开关，字1是扩展IO */
+    stDataUploadFrame.deviceStatus.statusProbe1 = stDataUploadFrameZ.deviceStatus.statusProbe1= BitGet(i2c_buffer_read[1], 0);/* 状态赋值 */
     stDataUploadFrame.deviceStatus.statusProbe2 = stDataUploadFrameZ.deviceStatus.statusProbe2 = BitGet(i2c_buffer_read[1], 1);
     stDataUploadFrame.deviceStatus.statusPress = stDataUploadFrameZ.deviceStatus.statusPress= BitGet(i2c_buffer_read[1], 2);
     stDataUploadFrame.deviceStatus.statusColor = stDataUploadFrameZ.deviceStatus.statusColor = BitGet(i2c_buffer_read[1], 3);
 }
 
-
 /*************************************************************************************
  * Function Name: SingleBinaryArrayToHex
- * Description: This function takes a binary array and its length, and converts it into a 16-bit hexadecimal value.
+ * Description: 将二进制单字节数组转换为十六进制数值
  * Param[in]: *binaryArray: input binary array
  * Param[in]: arrayLength: output hex array
  * Retrun: decimalValue: the decimal format present the hex data which is transformed by the input binary data
@@ -151,7 +145,7 @@ uint8_t SingleBinaryArrayToHex(const uint8_t binaryArray[], uint8_t arrayLength)
 
 /*************************************************************************************
  * Function Name: MultipleBinaryArrayToHex
- * Description: 将二进制数组转换为十六进制数组
+ * Description: 将多字节二进制数组转换为多字节十六进制数组
  * binaryArray[in]: 输入的二进制数组
  * arrayLength[in]: 二进制数组长度
  * hexArray[out]: 输出的十六进制数组

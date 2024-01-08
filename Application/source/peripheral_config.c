@@ -24,20 +24,23 @@
 #include "Protocol.h"
 #include "xl9555.h"
 #include "i2c.h"
-
-#define ExtiPortBnum 12
-#define ExtiPortCnum 16
-#define ExtiPortDnum 16
-
 /*************************************************************************************
                                              --- Local Function ---
+*************************************************************************************/
+/*************************************************************************************
+ * Function Name: I2cTask
+ * Description: I2C任务，包括读取按键状态，根据按键状态控制电磁阀
+ * the configuration process.
+ * Param[in|out]: none
+ * Retrun: none
+ * Exception: 
 *************************************************************************************/
 void I2cTask(void)
 {
     /* i2c外设处理函数 */
     if (I2cKeyFlag)
     {
-        // 读取按键状态
+        // 写入控制字
         eeprom_buffer_write_interrupt(I2cConfRegisterH, XL9555_config_reg_cmd_H, 1);
         // 获取按键状态
         key1Closed = BitGet(i2c_buffer_read[1], 0);
@@ -68,8 +71,7 @@ void I2cTask(void)
 
 /*************************************************************************************
  * Function Name: GpioInputModeConfig
- * Description: 将所有引脚配置为Input模式
- * the configuration process.
+ * Description: 将所有通断检测引脚配置为Input模式
  * Param[in|out]: none
  * Retrun: none
  * Exception: 
@@ -81,7 +83,6 @@ void GpioInputModeConfig(void)
     for (i = 0; i < ExtiPortBnum; i++)
     {
         gpio_mode_set(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_NONE, BPINS[i]);
-
     }
     for (i = 0; i < ExtiPortCnum; i++)
     {
